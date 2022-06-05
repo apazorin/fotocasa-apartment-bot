@@ -2,7 +2,6 @@ from fileinput import close
 from classes.Variable import Variable
 from classes.User import User
 import os
-import SendEmail
 
 PENDING = "Pending"
 IN_PROGRESS = "In progress"
@@ -23,7 +22,6 @@ class ReadCSV:
         self.data_file = DATA_FILE
         self.input_path = PATH
         self.emails_file = EMAILS_FILE
-        self.sendEmail = SendEmail()
 
     #leer csv
     def ReadData(self):
@@ -53,7 +51,6 @@ class ReadCSV:
             err = "Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacía"
             print(err)
             print(f"Error: {e}")
-            self.sendEmail.run(f'Fatal error: {err}')
         finally: close()
     
     def ReadLogin(self):
@@ -75,7 +72,6 @@ class ReadCSV:
             err = "Error al leer el archivo CSV de login"
             print(err)
             print(f"Error: {e}")
-            self.sendEmail.run(f'Fatal error: {err}')
         finally: close()
 
     def ReadEmails(self):

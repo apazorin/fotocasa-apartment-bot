@@ -13,8 +13,11 @@ class SendEmail:
 
     def run(self, message):
         emails = self.readEmails()
+
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(self.email, self.passw)
-        for i in range(0, len(emails)): 
-            server.sendmail(self.email, self.subject, emails[i], message)
+
+        for i in range(0, len(emails)):
+            print(emails[i])
+            server.sendmail(self.email, emails[i], message)
         server.quit()

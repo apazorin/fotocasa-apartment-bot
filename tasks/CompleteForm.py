@@ -9,9 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-
 #Locales
-from classes.User import User
 from tasks.ReadCSV import ReadCSV
 from tasks.SendEmail import SendEmail
 
@@ -29,7 +27,7 @@ class CompleteForm:
 
     def __init__(self): 
         self.csv = ReadCSV()
-        self.sendEmail = SendEmail()
+        self.email = SendEmail()
         self.errors = []
 
     def load_data(self):
@@ -39,13 +37,19 @@ class CompleteForm:
         return self.csv.ReadLogin()
 
     def run(self):
-        driver = self.load_web()
-        self.login(driver)
-        self.completeForm(driver)
-        if(len(self.errors)):
-            self.sendEmail('Tu robot se ha ejecutado sin problemas y ha completado de subir todos los anuncios. !Gracias por confiar en Apartment!')
-        else: self.sendEmail(self.errors)
-
+        try: 
+            driver = self.load_web()
+            self.login(driver)
+            self.completeForm(driver)
+        finally: 
+            if(len(self.errors) == 0):
+                self.sendEmail('Tu robot se ha ejecutado sin problemas y ha completado de subir todos los anuncios. !Gracias por confiar en Apartment!')
+            else:
+                err = '' 
+                for i in range (0, len(self.errors)):
+                    err = err + self.errors[i] + '\n'
+                self.sendEmail(err)
+        
     def login(self, driver):
         user = self.load_login()
         #login
@@ -115,11 +119,11 @@ class CompleteForm:
         print(images)
 
         #Se suben las imágenes buscando por input de tipo file 
-        time.sleep(1)
+        time.sleep(10)
         for i in range(0, len(images)):
-            print(images_path + "/" + images[i])
+            print(images_path + "\\" + images[i])
             img_upload = driver.find_elements_by_xpath("//input[@type='file']")
-            img_upload[0].send_keys(images_path + "/" + images[i])
+            img_upload[0].send_keys(images_path + "\\" + images[i])
             img_upload.clear()
             time.sleep(2)
 
@@ -145,15 +149,10 @@ class CompleteForm:
                 .click()
 
     def completeForm(self, driver):
-        data = self.load_data()[0]
-        print(data)
-        print("executing")
-        time.sleep(2)
-        
         try:
+            data = self.load_data()[0]
             time.sleep(2)
 
-            self.sendEmail.run('Everything okay')
             #precio
             self.sendInput('/html/body/div[2]/div/section/article/form/div[1]/fieldset[2]/div/div[1]/div/div[2]/div/input', data.precio, driver)
 
@@ -221,7 +220,7 @@ class CompleteForm:
             #publicar
             self.click('/html/body/div[2]/div/section/article/form/div[3]/div/button', driver)
 
-            time.sleep(200)
+            time.sleep(1)
             
             return True
         except Exception as e: 
@@ -231,7 +230,7 @@ class CompleteForm:
         finally: driver.close()
 
     def sendEmail(self, message):
-        return self.sendEmail.run(message)
+        return self.email.run(message)
 
 
 
