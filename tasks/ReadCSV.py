@@ -1,6 +1,7 @@
 from fileinput import close
 from classes.Variable import Variable
 from classes.User import User
+from classes.Errors import errors
 import os
 
 PENDING = "Pending"
@@ -44,12 +45,11 @@ class ReadCSV:
                         row[8], row[9], row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], \
                             row[18], row[19], row[20], row[21], row[22], row[23], row[24]))
             close()
-            
+            print(variables)
             return variables
 
         except Exception as e: 
-            err = "Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacía"
-            print(err)
+            errors.append(f"Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacia.")
             print(f"Error: {e}")
         finally: close()
     
@@ -69,8 +69,7 @@ class ReadCSV:
                 user = User(row[0], row[1])
             return user
         except Exception as e: 
-            err = "Error al leer el archivo CSV de login"
-            print(err)
+            errors.append(f"Error al leer el login")
             print(f"Error: {e}")
         finally: close()
 
@@ -91,6 +90,6 @@ class ReadCSV:
             print(emails)
             return emails
         except Exception as e: 
-            print("Error al leer el archivo CSV de emails")
+            errors.append(f"Error al leer algún correo electrónico. Por favor, notifique del error si le ha llegado este correo")
             print(f"Error: {e}")
         finally: close()

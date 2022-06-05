@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 #Locales
 from tasks.ReadCSV import ReadCSV
-from tasks.SendEmail import SendEmail
+from classes.Errors import errors, process
 
 URL = "https://www.fotocasa.es/es/crear-anuncio/"
 DRIVER = R"C:\Users\rastr\Documents\RPA\Apartment-fotocasa\driver\chromedriver.exe"
@@ -27,7 +27,6 @@ class CompleteForm:
 
     def __init__(self): 
         self.csv = ReadCSV()
-        self.email = SendEmail()
         self.errors = []
 
     def load_data(self):
@@ -37,19 +36,17 @@ class CompleteForm:
         return self.csv.ReadLogin()
 
     def run(self):
-        try: 
-            driver = self.load_web()
-            self.login(driver)
-            self.completeForm(driver)
-        finally: 
-            if(len(self.errors) == 0):
-                self.sendEmail('Tu robot se ha ejecutado sin problemas y ha completado de subir todos los anuncios. !Gracias por confiar en Apartment!')
-            else:
-                err = '' 
-                for i in range (0, len(self.errors)):
-                    err = err + self.errors[i] + '\n'
-                self.sendEmail(err)
-        
+        try:   
+            data = self.load_data()
+            process.append(len(data))
+            for i in range (0, len(data)):
+                driver = self.load_web()
+                self.login(driver)
+                self.completeForm(driver, data[i])
+        except Exception as e: 
+            errors.append(f"Error al intentar rellenar el formulario")
+            print(f"Error: {e}")
+                
     def login(self, driver):
         user = self.load_login()
         #login
@@ -68,11 +65,10 @@ class CompleteForm:
             self.click('/html/body/div[2]/div/section/article/form/div[2]/div/div/div/div[2]/div/form/div[1]/div[4]/input', driver)
 
             time.sleep(1)
-            print("Login done!")
             return True
         except Exception as e: 
-            self.errors.append(f'Errors on login: {e}')
-            print(e)
+            errors.append(f"Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacia.")
+            print(f"Error: {e}")
             return False
 
     def load_web(self):
@@ -87,8 +83,8 @@ class CompleteForm:
 
             driver.get(URL)
         except Exception as e:
-            self.errors.append(f'Errors loading the web: {e}')
-            print(e)
+            errors.append(f"Error ejecutando chrome")
+            print(f"Error: {e}")
             return False
         return driver
 
@@ -148,9 +144,8 @@ class CompleteForm:
                 .until(EC.element_to_be_clickable((By.XPATH, xpath)))\
                 .click()
 
-    def completeForm(self, driver):
+    def completeForm(self, driver, data):
         try:
-            data = self.load_data()[0]
             time.sleep(2)
 
             #precio
@@ -219,18 +214,14 @@ class CompleteForm:
 
             #publicar
             self.click('/html/body/div[2]/div/section/article/form/div[3]/div/button', driver)
-
             time.sleep(1)
             
             return True
         except Exception as e: 
-            self.errors.append(f'Errors on Completing the form: {e}')
-            print(e)
+            errors.append(f"Error al intentar completar el fomulario de Fotocasa")
+            print(f"*Error: {e}")
             return False
         finally: driver.close()
-
-    def sendEmail(self, message):
-        return self.email.run(message)
 
 
 
