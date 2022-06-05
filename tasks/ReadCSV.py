@@ -9,14 +9,20 @@ IN_PROGRESS = "In progress"
 ERROR = "Error"
 COMPLETE = "Complete"
 
+LOGIN_FILE = "login.csv"
+DATA_FILE = "data.csv"
+EMAILS_FILE = "emails.csv"
+PATH = "C:\\Users\\rastr\\Documents\\RPA\\Apartment-fotocasa\\inputs"
+
 FILE = "data.csv"
 
 class ReadCSV:
 
-    def __init__(self, login_file, data_file, input_path):
-        self.login_file = login_file
-        self.data_file = data_file
-        self.input_path = input_path
+    def __init__(self):
+        self.login_file = LOGIN_FILE
+        self.data_file = DATA_FILE
+        self.input_path = PATH
+        self.emails_file = EMAILS_FILE
 
     #leer csv
     def ReadData(self):
@@ -68,3 +74,22 @@ class ReadCSV:
             print(f"Error: {e}")
         finally: close()
 
+    def ReadEmails(self):
+        try:
+            import csv
+            emails = []
+
+            os.chdir(self.input_path)
+            os.getcwd()
+
+            f = open(self.emails_file)
+            reader = csv.reader(f)
+
+            for row in reader:
+                print(f"...Processing emails: {row}")
+                emails.append(row[0])
+            return emails
+        except Exception as e: 
+            print("Error al leer el archivo CSV de emails")
+            print(f"Error: {e}")
+        finally: close()

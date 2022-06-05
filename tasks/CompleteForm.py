@@ -13,12 +13,10 @@ from selenium.webdriver.common.by import By
 #Locales
 from classes.User import User
 from tasks.ReadCSV import ReadCSV
+from tasks.SendEmail import SendEmail
 
 URL = "https://www.fotocasa.es/es/crear-anuncio/"
 DRIVER = R"C:\Users\rastr\Documents\RPA\Apartment-fotocasa\driver\chromedriver.exe"
-LOGIN_FILE = "login.csv"
-DATA_FILE = "data.csv"
-PATH = "C:\\Users\\rastr\\Documents\\RPA\\Apartment-fotocasa\\inputs"
 
 #maps
 EFICIENCIA = { "A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6, "G": 7 }
@@ -30,7 +28,8 @@ ANTIGUEDAD = { "Menos 1 anyo": 1, "1 a 5 anyos": 2, "5 a 10 anyos": 3, "10 a 20 
 class CompleteForm:
 
     def __init__(self): 
-        self.csv = ReadCSV(LOGIN_FILE, DATA_FILE, PATH)
+        self.csv = ReadCSV()
+        self.email = SendEmail()
 
     def load_data(self):
         return self.csv.ReadData()
@@ -215,11 +214,17 @@ class CompleteForm:
             self.click('/html/body/div[2]/div/section/article/form/div[3]/div/button', driver)
 
             time.sleep(200)
+            self.sendEmail('Everything okay')
             return True
         except Exception as e: 
             print(e)
             return False
-        finally: driver.close()
+        finally: 
+            driver.close()
+            self.sendEmail('Everything okay')
+
+    def sendEmail(self, message):
+        return self.sendEmail.run(message)
 
     def test(self, driver):
         data = self.load_data()[0]
