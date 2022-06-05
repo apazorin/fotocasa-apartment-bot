@@ -2,7 +2,7 @@ from fileinput import close
 from classes.Variable import Variable
 from classes.User import User
 import os
-import csv
+import SendEmail
 
 PENDING = "Pending"
 IN_PROGRESS = "In progress"
@@ -12,7 +12,7 @@ COMPLETE = "Complete"
 LOGIN_FILE = "login.csv"
 DATA_FILE = "data.csv"
 EMAILS_FILE = "emails.csv"
-PATH = "C:\\Users\\rastr\\Documents\\RPA\\Apartment-fotocasa\\inputs"
+PATH = "C:\\Users\\rastr\\Documents\\RPA\\fotocasa-apartment-bot\\inputs"
 
 FILE = "data.csv"
 
@@ -23,6 +23,7 @@ class ReadCSV:
         self.data_file = DATA_FILE
         self.input_path = PATH
         self.emails_file = EMAILS_FILE
+        self.sendEmail = SendEmail()
 
     #leer csv
     def ReadData(self):
@@ -49,15 +50,16 @@ class ReadCSV:
             return variables
 
         except Exception as e: 
-            print("Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacía")
+            err = "Error al leer el archivo CSV. Compruebe no dejar ninguna columna vacía"
+            print(err)
             print(f"Error: {e}")
+            self.sendEmail.run(f'Fatal error: {err}')
         finally: close()
     
     def ReadLogin(self):
         try:
 
             import csv
-            variables = []
 
             os.chdir(self.input_path)
             os.getcwd()
@@ -70,8 +72,10 @@ class ReadCSV:
                 user = User(row[0], row[1])
             return user
         except Exception as e: 
-            print("Error al leer el archivo CSV de login")
+            err = "Error al leer el archivo CSV de login"
+            print(err)
             print(f"Error: {e}")
+            self.sendEmail.run(f'Fatal error: {err}')
         finally: close()
 
     def ReadEmails(self):
@@ -88,6 +92,7 @@ class ReadCSV:
             for row in reader:
                 print(f"...Processing emails: {row}")
                 emails.append(row[0])
+            print(emails)
             return emails
         except Exception as e: 
             print("Error al leer el archivo CSV de emails")

@@ -29,7 +29,8 @@ class CompleteForm:
 
     def __init__(self): 
         self.csv = ReadCSV()
-        self.email = SendEmail()
+        self.sendEmail = SendEmail()
+        self.errors = []
 
     def load_data(self):
         return self.csv.ReadData()
@@ -41,6 +42,9 @@ class CompleteForm:
         driver = self.load_web()
         self.login(driver)
         self.completeForm(driver)
+        if(len(self.errors)):
+            self.sendEmail('Tu robot se ha ejecutado sin problemas y ha completado de subir todos los anuncios. !Gracias por confiar en Apartment!')
+        else: self.sendEmail(self.errors)
 
     def login(self, driver):
         user = self.load_login()
@@ -63,19 +67,25 @@ class CompleteForm:
             print("Login done!")
             return True
         except Exception as e: 
+            self.errors.append(f'Errors on login: {e}')
             print(e)
             return False
 
     def load_web(self):
-        options = webdriver.ChromeOptions()
-        options.add_argument('--start-maximized')
-        options.add_argument('--disable-web-security')
-        options.add_argument('--allow-running-insecure-content')
-        options.add_argument('--allow-cookies')
+        try: 
+            options = webdriver.ChromeOptions()
+            options.add_argument('--start-maximized')
+            options.add_argument('--disable-web-security')
+            options.add_argument('--allow-running-insecure-content')
+            options.add_argument('--allow-cookies')
 
-        driver = webdriver.Chrome(DRIVER, chrome_options=options)
+            driver = webdriver.Chrome(DRIVER, chrome_options=options)
 
-        driver.get(URL)
+            driver.get(URL)
+        except Exception as e:
+            self.errors.append(f'Errors loading the web: {e}')
+            print(e)
+            return False
         return driver
 
     def dropDowns(self, xpath, max, driver):
@@ -143,9 +153,7 @@ class CompleteForm:
         try:
             time.sleep(2)
 
-            #Resolvemos cookies
-            #self.click('/html/body/div[2]/div/div/div/div/div/footer/div/button[2]')
-
+            self.sendEmail.run('Everything okay')
             #precio
             self.sendInput('/html/body/div[2]/div/section/article/form/div[1]/fieldset[2]/div/div[1]/div/div[2]/div/input', data.precio, driver)
 
@@ -214,37 +222,16 @@ class CompleteForm:
             self.click('/html/body/div[2]/div/section/article/form/div[3]/div/button', driver)
 
             time.sleep(200)
-            self.sendEmail('Everything okay')
+            
             return True
         except Exception as e: 
+            self.errors.append(f'Errors on Completing the form: {e}')
             print(e)
             return False
-        finally: 
-            driver.close()
-            self.sendEmail('Everything okay')
+        finally: driver.close()
 
     def sendEmail(self, message):
         return self.sendEmail.run(message)
-
-    def test(self, driver):
-        data = self.load_data()[0]
-        print(data)
-        print("executing")
-        time.sleep(2)
-        
-        try:
-            #Resolvemos cookies
-            self.click('/html/body/div[2]/div/div/div/div/div/footer/div/button[2]', driver)
-            time.sleep(5)
-
-            self.uploadImages(driver, data.photos_path)
-          
-            time.sleep(200)
-            return True
-        except Exception as e: 
-            print(e)
-            return False
-        finally: print('')
 
 
 
