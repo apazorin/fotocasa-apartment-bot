@@ -12,7 +12,7 @@ COMPLETE = "Complete"
 LOGIN_FILE = "login.csv"
 DATA_FILE = "data.csv"
 EMAILS_FILE = "emails.csv"
-PATH = "C:\\Users\\rastr\\Documents\\RPA\\fotocasa-apartment-bot\\inputs"
+PATH = "C:\\Users\\rastr\\Documents\\RPA\\sdfdsf\\fotocasa-apartment-bot\\inputs"
 
 FILE = "data.csv"
 
@@ -90,6 +90,6 @@ class ReadCSV:
             print(emails)
             return emails
         except Exception as e: 
-            errors.append(f"Error al leer algún correo electrónico. Por favor, notifique del error si le ha llegado este correo")
+            errors.append(f"Error al leer algun correo electrunico. Por favor, notifique del error si le ha llegado este correo")
             print(f"Error: {e}")
         finally: close()
